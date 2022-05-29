@@ -53,7 +53,7 @@ def generate_noise(sigma):
 
 # 产生随机位置
 def generate_position():
-    tau = (100+rd.random()*800)/cfg.C
+    tau = (100+rd.random()*800)/cfg.C*1e6
     theta = rd.random()*np.pi-np.pi/2
     phi = rd.random()*np.pi
     return [tau, theta, phi]
@@ -78,9 +78,10 @@ def received_signal(channel, signal, noise):
 
 # 脚本主体
 s_p = generate_signal() # 发送信号
-snr_p = [x for x in range(-10, 20, 5)] # 信噪比
-data_dict = {} # 缓存数据的字典
-lable_dict = {} # 缓存标签的字典
+# snr_p = [x for x in range(0, 25, 5)] # 信噪比
+snr_p = [0]
+data_list = [] # 缓存数据的列表
+lable_list = [] # 缓存标签的列表
 
 
 # 按照不同的信噪比产生不同的训练数据
@@ -94,8 +95,8 @@ for i_idx in range(0, len(snr_p)):
     for j_idx in range(0, 10):
         
         # 清空字典
-        data_dict.clear()
-        lable_dict.clear()
+        data_list.clear()
+        lable_list.clear()
         
         # 1000组数据为一组作为一个文件保存
         for k_idx in range(0, 1000):
@@ -104,7 +105,8 @@ for i_idx in range(0, len(snr_p)):
             
             position = generate_position() # 每条数据随机一个位置
             channel, alpha, theta_w, phi_w = generate_channel(position, P_c) # 按照随机位置产生信道
-            sigma = math.sqrt((ll.norm(channel)**2)/(10**(snr_p[i_idx]/10))/cfg.N)
+            # sigma = math.sqrt((ll.norm(channel)**2)/(10**(snr_p[i_idx]/10))/cfg.N)
+            sigma = 0
             noise = generate_noise(sigma) # 产生随机噪声
             
             # 将随机位置与接收信号保存到字典
@@ -112,10 +114,13 @@ for i_idx in range(0, len(snr_p)):
             y_p.append(theta_w) # 定位波束赋形角度
             y_p.append(phi_w) # 
             y_p.append(P_c) # 定位功率
+            y_p.append(sigma) # 噪声均方差
             
-            data_dict[j_idx*1000+k_idx]  = y_p
-            position.append(alpha)
-            lable_dict[j_idx*1000+k_idx] = position
+            data_list.append(y_p)
+            
+            position.append(alpha.real)
+            position.append(alpha.imag)
+            lable_list.append(position)
             
             if k_idx%100 == 0 :
                 print("="*5+"generating data {}".format(k_idx+j_idx*1000)+", with SNR = {}".format(snr_p[i_idx]))
@@ -123,15 +128,15 @@ for i_idx in range(0, len(snr_p)):
         # 保存训练集、验证集以及测试集
         if j_idx <= 7 : # 8000训练集
             print("saving train datas and lables number {}".format(j_idx))
-            np.save(dir_path+"train"+os.sep+"data_{}".format(j_idx)+".npy", data_dict)
-            np.save(dir_path+"train"+os.sep+"lable_{}".format(j_idx)+".npy", lable_dict)
+            np.save(dir_path+"train"+os.sep+"data_{}".format(j_idx)+".npy", data_list)
+            np.save(dir_path+"train"+os.sep+"lable_{}".format(j_idx)+".npy", lable_list)
         elif j_idx == 8: # 1000验证集
             print("saving valid datas and lables number {}".format(j_idx))
-            np.save(dir_path+"valid"+os.sep+"data.npy", data_dict)
-            np.save(dir_path+"valid"+os.sep+"lable.npy", lable_dict)
+            np.save(dir_path+"valid"+os.sep+"data.npy", data_list)
+            np.save(dir_path+"valid"+os.sep+"lable.npy", lable_list)
         else: # 1000测试集
             print("saving test datas and lables number {}".format(j_idx))
-            np.save(dir_path+"test"+os.sep+"data.npy", data_dict)
-            np.save(dir_path+"test"+os.sep+"lable.npy", lable_dict)
+            np.save(dir_path+"test"+os.sep+"data.npy", data_list)
+            np.save(dir_path+"test"+os.sep+"lable.npy", lable_list)
                 
             

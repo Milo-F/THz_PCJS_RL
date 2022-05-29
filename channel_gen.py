@@ -77,7 +77,7 @@ def beamforming_matrix(position):
  
 # 生成不同子载波的延迟因子
 def delay_factor(position):
-    tau = position[0]
+    tau = position[0]*1e-6
     delay_list = []
     for i_idx in range(1, cfg.N+1):
         tmp = cmath.exp(-1j*2*cmath.pi*(cfg.F_C+i_idx/(cfg.N*cfg.T_S))*tau)
@@ -86,7 +86,7 @@ def delay_factor(position):
 
 # 产生随机的衰落
 def alpha_gen(position):
-    tau = position[0]
+    tau = position[0]*1e-6
     # 路径损耗
     alpha_loss = 1/(4*cmath.pi*cfg.F_C*tau)
     alpha_mos = cmath.exp(-(1/2)*cfg.KAPPA*cfg.C*tau)
