@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 '''
-    @File:ANet.py
-    @Author:Milo
-    @Date:2022/05/30 11:28:06
-    @Version:1.0
+    @File: ANet.py
+    @Author: Milo
+    @Date: 2022/05/30 11:28:06
+    @Version: 1.0
     @Description: 动作网络
 '''
 

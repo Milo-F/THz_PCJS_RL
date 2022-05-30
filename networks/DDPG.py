@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 '''
-    @File:DDPG.py
-    @Author:Milo
-    @Date:2022/05/30 11:27:41
-    @Version:1.0
+    @File: DDPG.py
+    @Author: Milo
+    @Date: 2022/05/30 11:27:41
+    @Version: 1.0
     @Description: DDPG网络
 '''
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 '''
-    @File:CNet.py
-    @Author:Milo
-    @Date:2022/05/30 11:28:19
-    @Version:1.0
+    @File: CNet.py
+    @Author: Milo
+    @Date: 2022/05/30 11:28:19
+    @Version: 1.0
     @Description: 价值网络
 '''
 
