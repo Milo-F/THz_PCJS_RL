@@ -1,9 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 29 15:13:57 2022
-    经验池
-@author: milo
-"""
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+'''
+    @File:Mem.py
+    @Author:Milo
+    @Date:2022/05/30 11:27:08
+    @Version:1.0
+    @Description: 经验池
+'''
+
 
 import numpy as np
 

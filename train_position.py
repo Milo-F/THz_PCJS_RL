@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri May 20 20:16:00 2022
-
+    训练定位
 @author: milo
 """
 

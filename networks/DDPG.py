@@ -1,9 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 29 15:13:57 2022
-    DDPG网络
-@author: milo
-"""
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+'''
+    @File:DDPG.py
+    @Author:Milo
+    @Date:2022/05/30 11:27:41
+    @Version:1.0
+    @Description: DDPG网络
+'''
+
 
 from networks import ANet
 from networks import CNet
@@ -19,7 +23,7 @@ class DDPG():
     def __init__(self,
                  state_dim=1,  # 状态信息维度
                  action_dim=1,  # 动作信息维度
-                 lr=0.002
+                 lr=0.002  # 学习率
                  ) -> None:
         # 学习率
         self.a_lr = lr
@@ -41,4 +45,8 @@ class DDPG():
     # 动作选择函数
     def choose_action(self, ob):
 
+        pass
+
+    # 学习
+    def learn(self):
         pass

@@ -1,12 +1,10 @@
-import numpy
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+'''
+    @File:test.py
+    @Author:Milo
+    @Date:2022/05/30 11:23:28
+    @Version:1.0
+    @Description:
+'''
 
-a = 45
-b = ["dsad"]
-c = {}
-c["dsa"] = 4
-
-print("hello")
-print("hello")
-print("hello")
-print("hello")
-print("hello")
