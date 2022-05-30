@@ -10,6 +10,7 @@
 
 
 import numpy as np
+import torch
 
 
 class Mem():
@@ -32,3 +33,11 @@ class Mem():
         assert self.mem_cnt >= self.mem_deepth, "Memory has not been fulfilled"
         idxs = np.random.choice(self.mem_deepth, size=n)
         return self.mem[idxs, :]
+    
+    # 提取
+    def extract(self, batch_mem, state_dim, action_dim):
+        s = torch.FloatTensor(batch_mem[:,:state_dim])
+        a = torch.FloatTensor(batch_mem[:, state_dim:state_dim + action_dim])
+        r = torch.FloatTensor(batch_mem[:, -state_dim-1: -state_dim])
+        s_ = torch.FloatTensor(batch_mem[:, -state_dim:])
+        return s, a, r, s_
