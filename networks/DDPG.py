@@ -1,71 +1,44 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun May 29 15:13:57 2022
-
+    DDPG网络
 @author: milo
 """
 
+from networks import ANet
+from networks import CNet
+import numpy as np
+import torch.nn as nn
 import torch
-from torch import nn
-from torch.nn import functional as nn_f
 
-# 动作网络
-class ANet(nn.Module):
-    def __init__(self, in_features, out_features, hidden_1 = 32, hidden_2 = 8):
-        super(ANet, self).__init__()
-        self.fc1 = nn.Linear(in_features, hidden_1)
-        self.fc1.weight.data.normal_(0, 0.1)
-        self.fc2 = nn.Linear(hidden_1,hidden_2)
-        self.fc2.weight.data.normal_(0, 0.1)
-        self.fc3 = nn.Linear(hidden_2, hidden_2)
-        self.fc3.weight.data.normal_(0, 0.1)
-        self.out = nn.Linear(hidden_2,out_features)
-        self.out.weight.data.normal_(0, 0.1)
-        
-    def forward(self, s):
-        x = self.fc1(s)
-        x = nn_f.leaky_relu(x)
-        x = self.fc2(x)
-        x = nn_f.leaky_relu(x)
-        x = self.fc3(x)
-        x = nn_f.leaky_relu(x)
-        x = self.out(x)
-        return x
 
-# 价值网络
-class CNet(nn.Module):
-    def __init__(self, in_features, out_features, hidden_1 = 10, hidden_2 = 1):
-        super(CNet, self).__init__()
-        self.fc1 = nn.Linear(in_features, hidden_1)
-        self.fc1.weight.data.normal_(0, 0.1)
-        self.fc2 = nn.Linear(hidden_1, hidden_2)
-        self.fc2.weight.data.normal_(0, 0.1)
-        self.fc3 = nn.Linear(hidden_2, hidden_2)
-        self.fc3.weight.data.normal_(0, 0.1)
-        self.out = nn.Linear(hidden_2,out_features)
-        self.out.weight.data.normal_(0, 0.1)
-        
-        
-    def forward(self, s, a):
-        x = torch.cat([s,a],1)
-        x = nn_f.leaky_relu(self.fc1(x))
-        x = nn_f.leaky_relu(self.fc2(x))
-        x = nn_f.leaky_relu(self.fc3(x))
-        x = self.out(x)
-        return x
+# DDPG网络定义
+class DDPG():
 
-class DDPG:
-    def __init__(
-            self, 
-            num_actions, 
-            num_features, 
-            lr = 0.005, 
-            reward_decay = 0.9, 
-            e_greedy = 0.9,
-            replace_target_iter = 300,
-            memery_size = 1000,
-            batch_size = 32,
-            tau = 0.0001,
-            e_greedy_increment=None
-            ):
+    # 构造函数
+    def __init__(self,
+                 state_dim=1,  # 状态信息维度
+                 action_dim=1,  # 动作信息维度
+                 lr=0.002
+                 ) -> None:
+        # 学习率
+        self.a_lr = lr
+        self.c_lr = lr
+        # 构造动作评估网络和动作目标网络
+        self.a_net_eval = ANet(state_dim, action_dim)
+        self.a_net_target = ANet(state_dim, action_dim)
+        # 构造价值评估网络和价值动作网络
+        self.c_net_eval = CNet(state_dim, action_dim)
+        self.c_net_target = CNet(state_dim, 1)
+        # 损失函数
+        self.loss_fun = nn.MSELoss()
+        # 优化器
+        self.actor_optimizer = torch.optim.Adam(
+            self.a_net_eval.parameters(), lr=self.a_lr, weight_decay=0.00001)
+        self.critic_optimizer = torch.optim.Adam(
+            self.c_net_eval.parameters(), lr=self.c_lr, weight_decay=0.00001)
+
+    # 动作选择函数
+    def choose_action(self, ob):
+
         pass
