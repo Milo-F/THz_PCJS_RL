@@ -10,7 +10,7 @@
 
 import math
 import numpy as np
-import config as cfg
+import Config as cfg
 
 
 class Signal():

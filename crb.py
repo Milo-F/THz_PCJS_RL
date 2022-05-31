@@ -7,7 +7,7 @@
     @Version: 1.0
     @Description: 计算CRB
 '''
-import config as cfg
+import Config as cfg
 import numpy as np
 import numpy.linalg as lg
 import cmath

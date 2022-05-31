@@ -8,7 +8,7 @@ Created on Fri May 20 20:16:00 2022
 import torch
 from networks import network
 import numpy as np
-import config as cfg
+import Config as cfg
 import matplotlib.pyplot as plt
 import random
 

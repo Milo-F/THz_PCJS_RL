@@ -11,7 +11,7 @@
 import cmath
 from select import select
 import numpy as np
-import config as cfg
+import Config as cfg
 
 
 class DirectionVec():

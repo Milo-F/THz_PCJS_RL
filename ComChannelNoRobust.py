@@ -10,7 +10,7 @@
 
 import numpy as np
 import cmath
-import config as cfg
+import Config as cfg
 import DirectionVec as DV
 
 

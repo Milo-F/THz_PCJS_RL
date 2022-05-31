@@ -5,7 +5,7 @@ Created on Tue May 17 15:52:58 2022
 @author: milo
 """
 # 
-import config as cfg
+import Config as cfg
 import random as rd
 import numpy  as np
 import os

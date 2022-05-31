@@ -16,6 +16,7 @@ M_X = 3
 M_Z = 3
 M = M_X * M_Z  # 天线数量
 KAPPA = 0.01    # 大气吸收系数
+ALPHA_SIGMA = 1e-9 # 路损随机项
 
 D_0 = (1/2)*(C/F_C)   # 基站天线间距
 LAMBDA_C = C/F_C           # 载波波长

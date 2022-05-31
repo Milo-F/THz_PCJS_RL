@@ -12,11 +12,10 @@ import Crb
 import math
 import Signal
 
-S = Signal.Signal().S_p
+snr_db = -20
+snr = 10**(snr_db/10)
 
-c = Crb.Crb([500, math.pi/3, math.pi/5], 10, 1e-7+1j*1e-7, S, 1e-10)
-
-print(c.crb)
+print(snr)
 
 
 
