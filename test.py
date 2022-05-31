@@ -9,7 +9,7 @@
 '''
 
 import cmath
-import DirectionMatrix as dm
+import DirectionVec as DV
 import config as cfg
 import numpy as np
 import numpy.linalg as lg
@@ -33,53 +33,73 @@ def solve_delay_div_vec(tau):
     delay_div_vec = np.mat(delay_div_vec).T
     return delay_div_vec
 
+def vec2diag(vec):
+    vec = np.array(vec)
+    # print(vec)
+    mat = np.zeros([len(vec), len(vec)])+1j*np.zeros([len(vec), len(vec)])
+    for i_idx in range(len(vec)):
+        mat[i_idx,i_idx]=vec[i_idx]
+    mat = np.mat(mat)
+    return mat
 
 P_p = 10
 theta = cmath.pi/3
 phi = cmath.pi/4
-sigma = 1e-8
+sigma = 1e-9
 alpha = 1e-7+1j*1e-7
 tau = 1.33e-7
 s = Signal()
+
 d = solve_delay_vec(tau)
 d_ = solve_delay_div_vec(tau)
-a = dm.get_a(theta, phi, 0)
-a_theta = dm.get_a_div_theta(theta, phi, 0)
-a_phi = dm.get_a_div_phi(theta, phi, 0)
-w = dm.get_a(theta, phi, 0)
+
+dv = DV.DirectionVec(theta, phi, 0)
+a = dv.a
+w = dv.a
+a_theta = dv.a_div_theta
+a_phi = dv.a_div_phi
 x = np.multiply(w, s.s_p)
-b_phi = dm.get_a_div_phi(theta, phi, 0)
-# diag
-j_11 = (2*P_p*abs(alpha)**2/sigma**2)*lg.norm(d_*(a.H*x))**2
-j_22 = (2*P_p*abs(alpha)**2/sigma**2)*lg.norm(d*(a_theta.H*x))**2
-j_33 = (2*P_p*abs(alpha)**2/sigma**2)*lg.norm(d*(a_phi.H*x))**2
-j_44 = (2*P_p/sigma**2)*lg.norm(d*(a.H*x))**2
+
+S = s.S_p
+W = vec2diag(w)
+X = (W*S).H
+j_11 = (2*P_p*abs(alpha)**2/sigma**2)*lg.norm(np.multiply(d_, X*a))**2
+j_22 = (2*P_p*abs(alpha)**2/sigma**2)*lg.norm(np.multiply(d, X*a_theta))**2
+j_33 = (2*P_p*abs(alpha)**2/sigma**2)*lg.norm(np.multiply(d, X*a_phi))**2
+j_44 = (2*P_p/sigma**2)*lg.norm(np.multiply(d, X*a))**2
 j_55 = j_44
-print(j_11, j_22, j_33, j_44, j_55)
+# print(j_11, j_22, j_33, j_44, j_55)
 # no_diag
-j_12 = (2*P_p*abs(alpha)**2/sigma**2)*np.real((d_*(a.H*x)).H*(d*(a_theta.H*x)))
-j_13 = (2*P_p*abs(alpha)**2/sigma**2)*np.real((d_*(a.H*x)).H*(d*(a_phi.H*x)))
-j_14 = (2*P_p/sigma**2)*np.real(alpha*(d_*(a.H*x)).H*(d*(a.H*x)))
-j_15 = (2*P_p/sigma**2)*np.real(1j*alpha*(d_*(a.H*x)).H*(d*(a.H*x)))
-j_23 = (2*P_p*abs(alpha)**2/sigma**2)*np.real((d*(a_theta.H*x)).H*(d*(a_phi.H*x)))
-j_24 = (2*P_p/sigma**2)*np.real(alpha*(d*(a.H*x)).H*(d*(a_theta.H*x)))
-j_25 = (2*P_p/sigma**2)*np.real(1j*alpha*(d*(a.H*x)).H*(d*(a_theta.H*x)))
-j_34 = (2*P_p/sigma**2)*np.real(alpha*(d*(a.H*x)).H*(d*(a_phi.H*x)))
-j_35 = (2*P_p/sigma**2)*np.real(1j*alpha*(d*(a.H*x)).H*(d*(a_phi.H*x)))
+j_12 = (2*P_p*abs(alpha)**2/sigma**2)*np.real((np.multiply(d_, X*a)).H*(np.multiply(d, X*a_theta)))
+j_13 = (2*P_p*abs(alpha)**2/sigma**2)*np.real((np.multiply(d_, X*a)).H*(np.multiply(d, X*a_phi)))
+j_14 = (2*P_p/sigma**2)*np.real(alpha*(np.multiply(d_, X*a)).H*(np.multiply(d, X*a)))
+j_15 = (2*P_p/sigma**2)*np.real(1j*alpha*(np.multiply(d_, X*a)).H*(np.multiply(d, X*a)))
+# j_12 = 0
+# j_13 = 0
+# j_14 = 0
+# j_15 = 0
+j_23 = (2*P_p*abs(alpha)**2/sigma**2)*np.real((np.multiply(d, X*a_theta)).H*(np.multiply(d, X*a_phi)))
+j_24 = (2*P_p/sigma**2)*np.real(alpha*(np.multiply(d, X*a)).H*(np.multiply(d, X*a_theta)))
+j_25 = (2*P_p/sigma**2)*np.real(1j*alpha*(np.multiply(d, X*a)).H*(np.multiply(d, X*a_theta)))
+j_34 = (2*P_p/sigma**2)*np.real(alpha*(np.multiply(d, X*a)).H*(np.multiply(d, X*a_phi)))
+j_35 = (2*P_p/sigma**2)*np.real(1j*alpha*(np.multiply(d, X*a)).H*(np.multiply(d, X*a_phi)))
 j_45 = 0
-print(j_12, j_13, j_14, j_15, j_23, j_24, j_25, j_34, j_35)
+# print(j_12, j_13, j_14, j_15, j_23, j_24, j_25, j_34, j_35)
 
 J = [[float(j_11), float(j_12), float(j_13), float(j_14), float(j_15)],
      [float(j_12), float(j_22), float(j_23), float(j_24), float(j_25)],
      [float(j_13), float(j_23), float(j_33), float(j_34), float(j_35)],
      [float(j_14), float(j_24), float(j_34), float(j_44), float(j_45)],
      [float(j_15), float(j_25), float(j_35), float(j_45), float(j_55)]]
+# J = [[float(j_11), float(j_14), float(j_15)],
+#      [float(j_14), float(j_44), float(j_45)],
+#      [float(j_15), float(j_45), float(j_55)]]
+# J = [[float(j_22), float(j_23)],
+#      [float(j_23), float(j_33)]] 
+
+# print(np.mat(J))
 J = np.mat(J).I
-# P = [[float(j_11), float(j_12), float(j_13)],
-#      [float(j_12), float(j_22), float(j_23)],
-#      [float(j_13), float(j_23), float(j_33)]]
-# P = np.mat(P).I
 print(J)
-# print(P)
+
 
 
