@@ -9,14 +9,15 @@
 '''
 
 
-
 import numpy as np
 import math
 
+
 # 根据输入的CRB协方差矩阵生成随机的估计位置
-def get_position_hat(crb, mean):
-    x_hat, y_hat, z_hat = np.random.multivariate_normal(mean, crb).T
+def get_position_hat(crb_p, mean):
+    x_hat, y_hat, z_hat = np.random.multivariate_normal(mean, crb_p).T
     return x_hat, y_hat, z_hat
+
 
 # 笛卡尔坐标转化球坐标
 def car2sphe(x, y, z):
@@ -24,6 +25,7 @@ def car2sphe(x, y, z):
     theta = math.asin(y/math.sqrt(x**2+y**2))
     phi = math.acos(z/d)
     return d, theta, phi
+
 
 # 球坐标转化笛卡尔坐标
 def sphe2car(d, theta, phi):
