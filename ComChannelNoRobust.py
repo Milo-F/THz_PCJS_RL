@@ -11,7 +11,7 @@
 import numpy as np
 import cmath
 import config as cfg
-import DirectionMatrix
+import DirectionVec as DV
 
 # 非稳健波束成型的通信信道
 class ComChannelNoRobust():
@@ -28,9 +28,9 @@ class ComChannelNoRobust():
         self.theta = self.theta_hat + Delta_p_sphe[1]
         self.phi = self.phi_hat + Delta_p_sphe[2]        
         # 方向矢量(根据估计位置以及其误差得到)
-        self.direct_a = DirectionMatrix.get_a(self.theta, self.phi, self.n)
+        self.direct_a = DV.DirectionVec(self.theta, self.phi, self.n).a
         # 波束赋形(根据估计位置得到)
-        self.beamforming = DirectionMatrix.get_a(self.theta_hat, self.phi_hat, n)
+        self.beamforming = DV.DirectionVec(self.theta_hat, self.phi_hat, self.n).a
         # 时延因子
         self.delay = self.delay_factor()
         # 通信功率

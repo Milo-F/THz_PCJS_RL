@@ -47,7 +47,7 @@ theta = cmath.pi/3
 phi = cmath.pi/4
 sigma = 1e-9
 alpha = 1e-7+1j*1e-7
-tau = 1.33e-7
+tau = 1.33e-6
 s = Signal()
 
 d = solve_delay_vec(tau)
@@ -72,8 +72,8 @@ j_55 = j_44
 # no_diag
 j_12 = (2*P_p*abs(alpha)**2/sigma**2)*np.real((np.multiply(d_, X*a)).H*(np.multiply(d, X*a_theta)))
 j_13 = (2*P_p*abs(alpha)**2/sigma**2)*np.real((np.multiply(d_, X*a)).H*(np.multiply(d, X*a_phi)))
-j_14 = (2*P_p/sigma**2)*np.real(alpha*(np.multiply(d_, X*a)).H*(np.multiply(d, X*a)))
-j_15 = (2*P_p/sigma**2)*np.real(1j*alpha*(np.multiply(d_, X*a)).H*(np.multiply(d, X*a)))
+j_14 = (2*P_p/sigma**2)*np.real((alpha*np.multiply(d_, X*a)).H*(np.multiply(d, X*a)))
+j_15 = (2*P_p/sigma**2)*np.real((1j*alpha*np.multiply(d_, X*a)).H*(np.multiply(d, X*a)))
 # j_12 = 0
 # j_13 = 0
 # j_14 = 0

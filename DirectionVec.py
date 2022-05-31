@@ -23,11 +23,12 @@ class DirectionVec():
         self.com_part = 1j*2*cmath.pi * \
             (cfg.F_C+n/(cfg.N*cfg.T_S))*cfg.D_0/cfg.C
         # 指数
-        self.vartheta = self.com_part * cmath.sin(theta)
-        self.varphi = self.com_part * cmath.cos(phi)
+        self.vartheta = self.com_part * cmath.cos(theta)
+        self.varphi = self.com_part * cmath.sin(phi)
         # 导数乘积项
-        self.vartheta_div = self.com_part * cmath.cos(theta)
-        self.varphi_div = -self.com_part * cmath.sin(phi)
+        self.vartheta_div = -self.com_part * cmath.sin(theta)
+        # self.vartheta_div_phi = self.com_part * cmath.cos(theta) * cmath.cos(phi)
+        self.varphi_div = self.com_part * cmath.cos(phi)
         
         # 结果
         self.a = self.get_a()
@@ -63,26 +64,18 @@ class DirectionVec():
     def solve_a_x_div(self):
         a_x_ = []
         for i_idx in range(cfg.M_X):
-            a_x_.append(self.idx_x[i_idx]*self.vartheta_div*cmath.exp(self.idx_z[i_idx]*self.varphi))
+            a_x_.append(self.idx_x[i_idx]*self.vartheta_div*cmath.exp(self.idx_z[i_idx]*self.vartheta))
         a_x_ = np.mat(a_x_).T
         return a_x_
 
-    def solve_a_x_div_phi(theta, phi, n):
-        vartheta = 1j*2*cmath.pi * \
-            (cfg.F_C+n/(cfg.N*cfg.T_S))*cfg.D_0 * \
-            cmath.cos(theta)*cmath.sin(phi)/cfg.C
-        vartheta_ = 1j*2*cmath.pi * \
-            (cfg.F_C+n/(cfg.N*cfg.T_S))*cfg.D_0 * \
-            cmath.cos(theta)*cmath.cos(phi)/cfg.C
-        # x = [x for x in range(-int((cfg.M_X-1)/2), int((cfg.M_X-1)/2)+1)]
-        x = [x for x in range(0, cfg.M_X)]
-        x = np.array(x)
-        tmp = x*vartheta
+    # 计算a_x对phi的导数
+    def solve_a_x_div_phi(self):
         a_x_ = []
-        for x in tmp:
-            a_x_.append(vartheta_*1/cmath.sqrt(cfg.M_X)*cmath.exp(x))
+        for i_idx in range(cfg.M_X):
+            a_x_.append(self.idx_x[i_idx]*self.vartheta_div_phi*cmath.exp(self.idx_z[i_idx]*self.vartheta))
         a_x_ = np.mat(a_x_).T
         return a_x_
+
 
     # 计算a_z对phi的导数
     def solve_a_z_div(self):
@@ -102,8 +95,10 @@ class DirectionVec():
 
     # 得到a对phi的求导
     def get_a_div_phi(self):
-        a_x = self.solve_a_x()
         a_z_ = self.solve_a_z_div()
+        # a_x_ = self.solve_a_x_div_phi()
+        # A = a_x_*a_z_.T
+        a_x = self.solve_a_x()
         A = a_x*a_z_.T
         a_div_phi = A.T.flatten().T
         return a_div_phi
