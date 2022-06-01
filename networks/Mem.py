@@ -18,7 +18,7 @@ class Mem():
     def __init__(self, mem_deepth=1000, mem_width=1) -> None:
         self.mem_cnt = 0
         self.mem_deepth = mem_deepth
-        self.mem = np.zeros(mem_deepth, mem_width)
+        self.mem = np.zeros([mem_deepth, mem_width])
         pass
 
     # 经验存储函数

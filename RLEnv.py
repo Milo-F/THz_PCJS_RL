@@ -51,8 +51,8 @@ class RLEnv():
     def solve_rate(self, p_sphe_hat, Delta_p_sphe, p_c, sigma):
         ch = [] # 列表用于存放通信信道
         for n in range(1, cfg.N+1):
-            ch.append(cchnr.ComChannelNoRobust(n, p_sphe_hat, Delta_p_sphe, p_c, self.alpha)) # 产生不同子载波的通信信道
-        ch = np.mat(ch).T
+            ch.append(cchnr.ComChannelNoRobust(n, p_sphe_hat, Delta_p_sphe, p_c, self.alpha).channel) # 产生不同子载波的通信信道
+        ch = np.mat(ch)
         snr_c = lg.norm(ch)**2/(cfg.N*sigma**2) # 通信信噪比
         r_c = math.log2(1+snr_c)
         return ch, r_c
@@ -62,10 +62,11 @@ class RLEnv():
         p_p = p_list[0]
         p_c = p_list[1]
         reward = 0
-        if np.trace(crb_p) <= cons.Constraints().rho and (p_p + p_c) <= cons.Constraints().p_total:
+        if np.sqrt(crb_p[0,0]) <= cons.Constraints().rho:
             reward = rate
         else:
-            reward = 0
+            print("voilate")
+            reward = -rate*100
         return reward
     
     # 按信噪比求解噪声
@@ -73,7 +74,7 @@ class RLEnv():
         # 构建定位信道
         dv = DV.DirectionVec(self.theta, self.phi, 0)
         a = dv.a
-        W = Crb.Crb().vec2diag(a)
+        W = Position.vec2diag(a)
         X = (W*self.S).H
         # 根据信噪比产生定位噪声和通信噪声
         sigma = math.sqrt((p_p*abs(self.alpha)**2*lg.norm(X*a)**2)/(cfg.N*self.snr))
@@ -89,11 +90,18 @@ class RLEnv():
         # 根据给定的信噪比求i+1帧的噪声标准差sigma
         sigma = self.get_sigma(p_p)
         # 求选择当前功率分配下的CRB
-        crb = Crb.Crb(p_sphe, p_p, self.alpha, self.S, sigma)  # 解算CRB（通过真实位置解算的）
+        crb = Crb.Crb(p_sphe, p_p, self.alpha, self.S, sigma).crb  # 解算CRB（通过真实位置解算的）
         # crb = Crb.Crb(p_p, alpha, self.S, sigma) # 作用范围内的采样平均CRB
         crb_p = crb[0:3, 0:3] # 取得位置有关的误差
-        p_sphe_hat = Position.get_position_hat(crb_p, p_sphe) # 根据crb获得下一帧估计位置
-        Delta_p_sphe = [crb_p[0,0], crb_p[1,1], crb_p[2,2]] # 位置相关的误差
+        # p_sphe_hat = Position.get_position_hat(crb_p, p_sphe) # 根据crb获得下一帧估计位置
+        p_sphe_hat = p_sphe
+        # print(p_sphe_hat)
+        Delta_p_sphe = [math.sqrt(crb_p[0,0])*cfg.C, math.sqrt(crb_p[1,1]), math.sqrt(crb_p[2,2])] # 位置相关的误差
         s_, rate = self.solve_rate(p_sphe_hat, Delta_p_sphe, p_c, sigma) # i+1帧的观测CIS以及通信速率
         reward = self.solve_reward(crb_p, p_list, rate)
-        return s_, rate, reward
+        s_r = np.real(s_)
+        s_i = np.imag(s_)
+        s = np.hstack([s_r, s_i])
+        s = np.array(s)
+        s = np.squeeze(s)
+        return s, rate, reward

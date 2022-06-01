@@ -8,13 +8,14 @@
     @Description: 和用户位置相关的函数实现
 '''
 
-
+import Config as cfg
 import numpy as np
 import math
 
 
 # 根据输入的CRB协方差矩阵生成随机的估计位置
 def get_position_hat(crb_p, mean):
+    # crb_p[0,0] = (math.sqrt(crb_p[0,0])*cfg.C)**2
     x_hat, y_hat, z_hat = np.random.multivariate_normal(mean, crb_p).T
     return x_hat, y_hat, z_hat
 
@@ -33,3 +34,13 @@ def sphe2car(d, theta, phi):
     y = d*math.sin(phi)*math.sin(theta)
     z = d*math.cos(phi)
     return x, y, z
+
+# 向量对角化
+def vec2diag(vec):
+    vec = np.array(vec)
+    # print(vec)
+    mat = np.zeros([len(vec), len(vec)])+1j*np.zeros([len(vec), len(vec)])
+    for i_idx in range(len(vec)):
+        mat[i_idx,i_idx]=vec[i_idx]
+    mat = np.mat(mat)
+    return mat

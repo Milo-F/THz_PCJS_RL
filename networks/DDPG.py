@@ -25,13 +25,14 @@ class DDPG():
                  action_dim=1,  # 动作信息维度
                  batch_size = 32, # 批大小
                  reward_decay = 0.9,   # 奖励折扣
+                 mem_deepth = 1000,
                  lr=0.002  # 学习率
                  ) -> None:
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.reward_decay = reward_decay
         # 经验池
-        self.mem = Mem(mem_deepth=1000, mem_width=self.state_dim*2+self.action_dim+1)
+        self.mem = Mem(mem_deepth=mem_deepth, mem_width=self.state_dim*2+self.action_dim+1)
         # 学习率
         self.a_lr = lr
         self.c_lr = lr
@@ -62,20 +63,22 @@ class DDPG():
         ob = ob * 10 ** 8
         ob = torch.Tensor(ob[np.newaxis, :])
         action = self.a_net_eval(ob).data.numpy()
+
+        action = np.squeeze(action)
         return action
 
     # 学习(前提为经验池存满)
     def learn(self):
         # 从评估网络更新目标网络
-        update_factor = 0.00001  # 更新系数
+        update_factor = 0.001  # 更新系数
         for x in self.a_net_target.state_dict().keys():
             eval('self.a_net_target.' + x + '.data.mul_((1-update_factor))')
             eval('self.a_net_target.' + x +
-                 '.data.add_(tau*self.a_net_eval.' + x + '.data)')
+                 '.data.add_(update_factor*self.a_net_eval.' + x + '.data)')
         for x in self.c_net_target.state_dict().keys():
-            eval('self.c_net_target.' + x + '.data.mul_((1-tau))')
+            eval('self.c_net_target.' + x + '.data.mul_((1-update_factor))')
             eval('self.c_net_target.' + x +
-                 '.data.add_(tau*self.c_net_eval.' + x + '.data)')
+                 '.data.add_(update_factor*self.c_net_eval.' + x + '.data)')
         # 从经验池采样
         batch_mem = self.mem.sample(self.batch_size)
         # 提取
@@ -102,6 +105,8 @@ class DDPG():
         self.cost_a.append(action_loss.item())
         self.cost_c.append(td_error.item())        
         self.learn_step += 1
+        
+        
         
         
         

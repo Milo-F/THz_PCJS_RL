@@ -50,35 +50,33 @@ def main():
     # 初始化功率分配
     var = 1
     rate_list = []
-    p_list = [0.7, 0.1]
+    p_list = [0.7, 0.2]
     s, rate, reward = env.step(p_list)
-    print(rate)
-    
-    # for epoch in range(epoch_total):
-    #     # 选择动作
-    #     s_tensor = torch.Tensor(s)
-    #     action = ddpg.choose_action(s_tensor)
-    #     action = np.clip(np.random.normal(action, var), 0.0001, 0.9999)
-    #     p_list[0] = action[0]*Constraints().beta_p
-    #     p_list[1] = action[1]*Constraints().beta_c
-    #     # p_list[1] = Constraints().p_total-p_list[0]
-    #     # p_list[1] = np.clip(np.random.normal(p_list[1], var), 0.0001, Constraints().beta_c)
-    #     s_, rate, reward = env.step(p_list)
-    #     # 保存经验到经验池
-    #     ddpg.mem.store_trans(s, action, reward, s_)
-    #     if ddpg.mem.mem_cnt > mem_deepth:
-    #         var = var*0.995
-    #         ddpg.learn()
-    #     # 更新状态
-    #     s = s_
+    for epoch in range(epoch_total):
+        # 选择动作
+        s_tensor = torch.Tensor(s)
+        action = ddpg.choose_action(s_tensor)
+        action = np.clip(np.random.normal(action, var), 0.0001, 0.9999)
+        p_list[0] = action[0]*Constraints().beta_p
+        p_list[1] = action[1]*Constraints().beta_c
+        # p_list[1] = Constraints().p_total-p_list[0]
+        # p_list[1] = np.clip(np.random.normal(p_list[1], var), 0.0001, Constraints().beta_c)
+        s_, rate, reward = env.step(p_list)
+        # 保存经验到经验池
+        ddpg.mem.store_trans(s, action, reward, s_)
+        if ddpg.mem.mem_cnt > mem_deepth:
+            var = var*0.995
+            ddpg.learn()
+        # 更新状态
+        s = s_
         
-    #     rate_list.append(rate)
-    #     print(p_list, rate)
+        rate_list.append(rate)
+        print(p_list, rate)
     
-    # pt = ddpg.cost_c
-    # x = [x for x in range(len(pt))]   
-    # plt.plot(x, pt)
-    # plt.show()
+    pt = ddpg.cost_c
+    x = [x for x in range(len(pt))]   
+    plt.plot(x, pt)
+    plt.show()
     
 
 
