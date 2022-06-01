@@ -37,12 +37,32 @@ class Crb():
         self.crb = self.solve_crb()
         pass
     
+    # TODO
+    def __init__(
+        self,
+        p_p, # 分配的功率
+        alpha, # 信道衰减系数
+        S, # 定位信号矩阵
+        sigma # 噪声标准差
+        ) -> None:
+        # 信道参数
+        self.p_p = p_p
+        self.alpha = alpha
+        # 发送信号
+        self.S = S
+        # 噪声
+        self.sigma = sigma
+        # 采样平均的crb
+        self.crb_avg = 0
+        pass
+    
     # 获得时延向量
     def solve_delay_vec(self):
         delay_vec = []
         delay_idx = [x for x in range(1,cfg.N+1)]
         for idx in delay_idx:
-            delay_vec.append(cmath.exp(-1j*2*cmath.pi*idx*self.tau_hat/(cfg.N*cfg.T_S)))
+            delay_vec.append(cmath.exp(-1j*2*cmath.pi*(cfg.F_C+idx/(cfg.N*cfg.T_S))*self.tau_hat))
+            # delay_vec.append(cmath.exp(-1j*2*cmath.pi*(0+idx/(cfg.N*cfg.T_S))*self.tau_hat))
         delay_vec = np.mat(delay_vec).T
         return delay_vec
     
@@ -52,8 +72,10 @@ class Crb():
         delay_div_vec = []
         delay_idx = [x for x in range(1,cfg.N+1)]
         for idx in delay_idx:
-            vartau = -1j*2*cmath.pi*idx*self.tau_hat/(cfg.N*cfg.T_S)
-            delay_div_vec.append(vartau*cmath.exp(-1j*2*cmath.pi*idx*self.tau_hat/(cfg.N*cfg.T_S)))
+            vartau = -1j*2*cmath.pi*(cfg.F_C + idx/(cfg.N*cfg.T_S))*self.tau_hat
+            delay_div_vec.append(vartau*cmath.exp(-1j*2*cmath.pi*(cfg.F_C + idx/(cfg.N*cfg.T_S))*self.tau_hat))
+            # vartau = -1j*2*cmath.pi*(0 + idx/(cfg.N*cfg.T_S))*self.tau_hat
+            # delay_div_vec.append(vartau*cmath.exp(-1j*2*cmath.pi*(0 + idx/(cfg.N*cfg.T_S))*self.tau_hat))
         delay_div_vec = np.mat(delay_div_vec).T
         return delay_div_vec
     
