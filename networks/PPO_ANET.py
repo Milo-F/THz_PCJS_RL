@@ -7,7 +7,7 @@
     @Version: 1.0
     @Description: PPO_ANET
 '''
-
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -33,7 +33,7 @@ class PPO_ANET(nn.Module):
         x_mean = self.f_mean_1(x)
         x_mean = F.leaky_relu(x_mean)
         x_mean = self.f_mean_2(x_mean)
-        x_mean = F.sigmoid(x_mean)
+        x_mean = torch.sigmoid(x_mean)
         
         x_var = self.f_var_1(x)
         x_var = F.leaky_relu(x_var)

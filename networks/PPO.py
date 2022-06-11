@@ -101,7 +101,7 @@ class PPO():
             mu, std = self.a_net(state)
             conv = torch.diag_embed(std)
             pi = torch.distributions.MultivariateNormal(mu, conv)
-            action = torch.clamp(pi.sample(), 0.0001, 1)
+            action = torch.clamp(pi.sample(), 0, 1)
             return action
     
     def get_v(self, state):

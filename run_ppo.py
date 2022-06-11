@@ -7,17 +7,34 @@
     @Version: 1.0
     @Description: ppo网络训练main函数
 '''
+from math import ceil
 import Constraints as cons
 import torch
 import Arguments as Arg
 from networks import PPO
 import RLEnv
+from test_env import Test_Env
 import numpy as np
+from matplotlib import pyplot as plt
 
+def print_log(str:str):
+    s_tmp = (40-ceil(len(str)/2))
+    e_tmp = s_tmp
+    if (len(str)%2):
+        e_tmp = e_tmp +1
+    print("="*s_tmp + str + "="*e_tmp)
+
+def plot_jpg(y:list, x_str:str, y_str:str, fig_name:str):
+    x = [x for x in range(len(y))]
+    plt.plot(x, y)
+    plt.xlabel(x_str)
+    plt.ylabel(y_str) 
+    plt.savefig("{}.jpg".format(fig_name))
 
 def main():
     hyper_params = vars(Arg.get_args())
     
+    # 超参数
     a_lr = hyper_params["actor_lr"]
     c_lr = hyper_params["critic_lr"]
     eps = hyper_params["eps"]
@@ -28,35 +45,41 @@ def main():
     ep_len = hyper_params["episode_len"]
     batch_size = hyper_params["batch_size"]
     reward_decay = hyper_params["reward_decay"]
-    
-    position = [100, 120, -10] # 位置
-    sigma = 1e-8 # 噪声
-    env = RLEnv.RLEnv(position, sigma)
+    # 
+    print_log("INIT ENVIROMENT")
+    env = Test_Env()
     
     state_dim = env.state_dim
     action_dim = env.action_dim
     
+    print_log("INIT PPO2 NETWORK")
     ppo = PPO.PPO(state_dim, action_dim, a_lr, c_lr, eps, epsilon, actor_update_step, critic_update_step)
-    p_list = [0,0]
+    
+    ep_x_list = []
+    
+    print_log("START TRAINING")
     for ep in range(ep_num):
-        all_ep_r = []
         
         s = env.reset()
         buf_s, buf_a, buf_r = [], [], []
         ep_r = 0
+        ep_x = 0
         
         for step in range(ep_len):
             tensor_s = torch.tensor(s, dtype=torch.float32)
             tensor_a = ppo.choose_action(tensor_s)  
             a = tensor_a.detach().numpy()          
-            s_, rate, reward, crb = env.step(a)
+            s_, reward, x = env.step(a)
             buf_s.append(s)
             buf_a.append(a)
             buf_r.append(reward)
             s = s_
             ep_r += reward
+            ep_x += x
+            
             
             if (step+1)%batch_size == 0 or step == ep_len-1:
+                               
                 tensor_s_ = torch.tensor(s_, dtype=torch.float32)
                 v_s_ = ppo.get_v(tensor_s_)
                 
@@ -71,21 +94,20 @@ def main():
                 buf_s.clear()
                 buf_a.clear()
                 buf_r.clear()
-                print("开始{}训练, {}".format(step, ep_r))
                 ppo.update(bs, ba, bR)
                 
-        # if ep == 0:
-        #     all_ep_r.append(ep_r)
-        # else:
-        #     all_ep_r.append(all_ep_r[-1] * 0.9 + ep_r * 0.1)
-        # print(
-        #     'Episode: {}/{}  | Episode Reward: {:.4f}  | Running Time: {:.4f}'.format(
-        #         ep, ep_num, ep_r
-        #     )
-        # )
-            
-    if hyper_params["train"]:
-        print("aaa")
+            # 一个EPOCH训练结束，打印相关的信息
+            if step == ep_len-1:
+                print(
+                    "Episode: {}".format(ep)
+                    +"\tEpisode Reward: {:.4f}".format(ep_r/ep_len)
+                    +"\tRate: {:.4f}".format(ep_x/ep_len) 
+                    + "\tPosition Power: {:.4f}".format(a[0]*6)
+                    + "\tCom Power: {:.4f}".format(a[1]*6)
+                    )
+        ep_x_list.append(ep_x/ep_len)       
 
+    plot_jpg(ep_x_list, "epoch", "average reward", "ppo_avg_reward")
+    
 if __name__ == "__main__":
     main()
