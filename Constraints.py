@@ -7,10 +7,9 @@
     @Version: 1.0
     @Description: 约束文件，存放约束及其边界值
 '''
-class Constraints():
-    def __init__(self) -> None:
-        self.p_total = 1 # 总功率约束
-        self.beta_p = 0.8 # 独立的定位功率约束
-        self.beta_c = 0.8 # 独立的通信功率约束
-        self.rho = 7e-7 # 定位crb精度约束
-        pass
+
+P_TOTAL = 10 # 总功率约束
+BETA_P = 8 # 独立的定位功率约束
+BETA_C = 8 # 独立的通信功率约束
+RHO = 7e-7 # 定位crb精度约束
+

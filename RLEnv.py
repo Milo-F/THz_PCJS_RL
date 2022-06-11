@@ -8,6 +8,7 @@
     @Description: 强化学习的交互环境，包含通信速率，定位CRB等优化问题的目标与约束等
 '''
 
+from asyncio import constants
 import Crb  # 克拉美劳界
 import Signal  # 发送信号
 import Config as cfg  # 配置固定参数
@@ -22,11 +23,14 @@ import numpy as np
 
 
 class RLEnv():
+    state_dim = 32
+    action_dim = 2
     # 构造函数
     def __init__(
         self,
         position,  # 位置
-        snr_db=10  # 信噪比
+        sigma, # 背景噪声
+        # snr_db=10  # 信噪比
     ) -> None:
         # 真实位置（直角坐标）
         self.x = position[0]
@@ -41,8 +45,9 @@ class RLEnv():
         self.alpha_random = np.random.randn()*cfg.ALPHA_SIGMA + 1j*np.random.randn()*cfg.ALPHA_SIGMA
         self.alpha = self.alpha_loss*self.alpha_moss + self.alpha_random
         # 信噪比
-        self.snr_db = snr_db
-        self.snr = 10**(self.snr_db/10)
+        self.sigma = sigma
+        # self.snr_db = snr_db
+        # self.snr = 10**(self.snr_db/10)
         # 定位信号矩阵
         self.S = Signal.Signal().S_p
         pass
@@ -62,23 +67,24 @@ class RLEnv():
         p_p = p_list[0]
         p_c = p_list[1]
         reward = 0
-        if np.sqrt(crb_p[0,0]) <= cons.Constraints().rho:
+        if np.sqrt(crb_p[0,0]) <= cons.RHO and p_list[0] + p_list[1] <= cons.P_TOTAL:
             reward = rate
         else:
-            print("voilate")
-            reward = -rate*100
+            # print("voilate")
+            # reward = -rate*100
+            reward = 0
         return reward
     
     # 按信噪比求解噪声
-    def get_sigma(self, p_p):
-        # 构建定位信道
-        dv = DV.DirectionVec(self.theta, self.phi, 0)
-        a = dv.a
-        W = Position.vec2diag(a)
-        X = (W*self.S).H
-        # 根据信噪比产生定位噪声和通信噪声
-        sigma = math.sqrt((p_p*abs(self.alpha)**2*lg.norm(X*a)**2)/(cfg.N*self.snr))
-        return sigma
+    # def get_sigma(self, p_p):
+    #     # 构建定位信道
+    #     dv = DV.DirectionVec(self.theta, self.phi, 0)
+    #     a = dv.a
+    #     W = Position.vec2diag(a)
+    #     X = (W*self.S).H
+    #     # 根据信噪比产生定位噪声和通信噪声
+    #     sigma = math.sqrt((p_p*abs(self.alpha)**2*lg.norm(X*a)**2)/(cfg.N*self.snr))
+    #     return sigma
     
     # 环境交互函数，输入当前状态以及选择的功率分配，得
     # 到该功率分配下的下一个时刻的信道状态以及选择该功
@@ -88,7 +94,7 @@ class RLEnv():
         p_c = p_list[1] # i帧得到的通信功率
         p_sphe = [self.d, self.theta, self.phi] # 真实位置
         # 根据给定的信噪比求i+1帧的噪声标准差sigma
-        sigma = self.get_sigma(p_p)
+        sigma = self.sigma
         # 求选择当前功率分配下的CRB
         crb = Crb.Crb(p_sphe, p_p, self.alpha, self.S, sigma).crb  # 解算CRB（通过真实位置解算的）
         # crb = Crb.Crb(p_p, alpha, self.S, sigma) # 作用范围内的采样平均CRB
@@ -96,7 +102,7 @@ class RLEnv():
         # p_sphe_hat = Position.get_position_hat(crb_p, p_sphe) # 根据crb获得下一帧估计位置
         p_sphe_hat = p_sphe
         # print(p_sphe_hat)
-        Delta_p_sphe = [math.sqrt(crb_p[0,0])*cfg.C, math.sqrt(crb_p[1,1]), math.sqrt(crb_p[2,2])] # 位置相关的误差
+        Delta_p_sphe = [math.sqrt(crb_p[0,0]), math.sqrt(crb_p[1,1]), math.sqrt(crb_p[2,2])] # 位置相关的误差
         s_, rate = self.solve_rate(p_sphe_hat, Delta_p_sphe, p_c, sigma) # i+1帧的观测CIS以及通信速率
         reward = self.solve_reward(crb_p, p_list, rate)
         s_r = np.real(s_)
@@ -104,4 +110,8 @@ class RLEnv():
         s = np.hstack([s_r, s_i])
         s = np.array(s)
         s = np.squeeze(s)
-        return s, rate, reward
+        return s, rate, reward, crb_p
+
+    def reset(self):
+        s, ra, re, _ = self.step([5, 5])
+        return s

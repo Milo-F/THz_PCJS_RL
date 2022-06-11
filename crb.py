@@ -11,6 +11,7 @@ import Config as cfg
 import numpy as np
 import numpy.linalg as lg
 import cmath
+import math
 import DirectionVec as DV
 
 class Crb():
@@ -34,7 +35,7 @@ class Crb():
         # 噪声
         self.sigma = sigma
         # crb
-        self.crb = self.solve_crb()
+        self.crb, self.crb_diag_sqrt = self.solve_crb()
         pass
     
     # # TODO
@@ -126,7 +127,8 @@ class Crb():
             [float(j_14), float(j_24), float(j_34), float(j_44), float(j_45)],
             [float(j_15), float(j_25), float(j_35), float(j_45), float(j_55)]]
         C = np.mat(J).I
-        return C
+        c_diag_sqrt = [math.sqrt(C[0,0]), math.sqrt(C[1,1]), math.sqrt(C[2,2]), math.sqrt(C[3,3]), math.sqrt(C[4,4])]
+        return C, c_diag_sqrt
         
         
         

@@ -23,8 +23,8 @@ class DDPG():
     def __init__(self,
                  state_dim=1,  # 状态信息维度
                  action_dim=1,  # 动作信息维度
-                 batch_size = 32, # 批大小
-                 reward_decay = 0.9,   # 奖励折扣
+                 batch_size = 64, # 批大小
+                 reward_decay = 0,   # 奖励折扣
                  mem_deepth = 1000,
                  lr=0.002  # 学习率
                  ) -> None:
@@ -70,7 +70,7 @@ class DDPG():
     # 学习(前提为经验池存满)
     def learn(self):
         # 从评估网络更新目标网络
-        update_factor = 0.001  # 更新系数
+        update_factor = 0.1  # 更新系数
         for x in self.a_net_target.state_dict().keys():
             eval('self.a_net_target.' + x + '.data.mul_((1-update_factor))')
             eval('self.a_net_target.' + x +
@@ -85,8 +85,9 @@ class DDPG():
         batch_s, batch_a, batch_r, batch_s_ = self.mem.extract(batch_mem, self.state_dim, self.action_dim)
         # 正向传播    
         a = self.a_net_eval(batch_s)
-        q = self.c_net_eval(batch_s, batch_a)        
+        q = self.c_net_eval(batch_s, a)        
         # 反向传播更新参数
+        # print("q:",q)
         action_loss = - torch.mean(q)
         self.actor_optimizer.zero_grad()
         action_loss.backward()
@@ -94,8 +95,11 @@ class DDPG():
         # 目标网络
         a_target = self.a_net_target(batch_s_)
         q_tmp = self.c_net_target(batch_s_, a_target)
+        
         q_target = batch_r + self.reward_decay * q_tmp
-        q_eval = self.c_net_eval(batch_s, batch_a)        
+        # print(q_target, q_tmp)
+        q_eval = self.c_net_eval(batch_s, batch_a)
+        # print(q_target, q_eval)        
         # 价值网络反向传播与更新
         td_error = self.loss_fun(q_target, q_eval)
         self.critic_optimizer.zero_grad()

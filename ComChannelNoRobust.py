@@ -22,7 +22,7 @@ class ComChannelNoRobust():
         self.n = n  # 第n个子载波
         self.alpha = alpha
         # 球坐标估计位置，根据估计位置和误差产生信道
-        self.tau_hat = p_sphe_hat[0]/cfg.C
+        self.tau_hat = p_sphe_hat[0]
         self.theta_hat = p_sphe_hat[1]
         self.phi_hat = p_sphe_hat[2]
         # 真实位置
@@ -39,7 +39,7 @@ class ComChannelNoRobust():
         # 通信功率
         self.p_c = p_c
         self.channel = cmath.sqrt(
-            self.p_c)*self.alpha*self.delay*(self.direct_a.H*self.beamforming).item()
+            self.p_c)*self.alpha*(self.direct_a.H*self.beamforming).item()
         pass
 
     # def get_noise(sigma):
