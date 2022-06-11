@@ -8,14 +8,10 @@
     @Description: ppo网络训练main函数
 '''
 
-import os
-import time
-from math import ceil
 import torch
 import Arguments as Arg
 from networks.PPO import PPO
 from enviroment.Test_Env import Test_Env
-from matplotlib import pyplot as plt
 import Tools
 
 
@@ -51,7 +47,8 @@ def main():
                   epsilon, actor_update_step, critic_update_step)
 
     # 用于画图的数据
-    ep_x_list = []
+    ep_rate_list = []
+    ep_reward_list = []
 
     Tools.print_log("START TRAINING")
     # 训练
@@ -82,6 +79,7 @@ def main():
             buf_r.append(reward)
             # 更新状态
             s = s_
+            
             # 累加每一步的奖励
             ep_r += reward
             ep_rate += rate
@@ -122,9 +120,11 @@ def main():
                 )
 
         # 每个epoch需要保存的信息
-        ep_x_list.append(ep_rate/ep_len)
+        ep_rate_list.append(ep_rate/ep_len)
+        ep_reward_list.append(ep_r/ep_len)
     # 画图
-    Tools.plot_jpg(ep_x_list, "epoch", "average reward", "PPO_avg_reward")
+    Tools.plot_fig(ep_reward_list, "epoch", "average reward", "PPO_avg_reward")
+    Tools.plot_fig(ep_rate_list, "epoch", "average rate", "PPO_avg_rate")
 
 
 if __name__ == "__main__":
