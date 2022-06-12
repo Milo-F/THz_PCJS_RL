@@ -13,34 +13,38 @@ import numpy as np
 import math
 
 
-# 根据输入的CRB协方差矩阵生成随机的估计位置
 def get_position_hat(crb_p, mean):
-    # crb_p[0,0] = (math.sqrt(crb_p[0,0])*cfg.C)**2
-    x_hat, y_hat, z_hat = np.random.multivariate_normal(mean, crb_p).T
-    return x_hat, y_hat, z_hat
+    '''
+        根据输入的CRB协方差矩阵生成随机的估计位置
+        参数：协方差矩阵，均值
+    '''
+    tau_hat, theta_hat, phi_hat = np.random.multivariate_normal(mean, crb_p)
+    return tau_hat, theta_hat, phi_hat
 
 
-# 笛卡尔坐标转化球坐标
 def car2sphe(x, y, z):
+    '''笛卡尔坐标转化球坐标'''
     d = math.sqrt(x**2+y**2+z**2)
     theta = math.asin(y/math.sqrt(x**2+y**2))
     phi = math.acos(z/d)
     return d, theta, phi
 
 
-# 球坐标转化笛卡尔坐标
-def sphe2car(d, theta, phi):
+def sphe2car(tau, theta, phi):
+    '''球坐标转化笛卡尔坐标'''
+    d = tau*cfg.C
     x = d*math.sin(phi)*math.cos(theta)
     y = d*math.sin(phi)*math.sin(theta)
     z = d*math.cos(phi)
     return x, y, z
 
-# 向量对角化
+
 def vec2diag(vec):
+    '''向量对角化'''
     vec = np.array(vec)
     # print(vec)
     mat = np.zeros([len(vec), len(vec)])+1j*np.zeros([len(vec), len(vec)])
     for i_idx in range(len(vec)):
-        mat[i_idx,i_idx]=vec[i_idx]
+        mat[i_idx, i_idx] = vec[i_idx]
     mat = np.mat(mat)
     return mat

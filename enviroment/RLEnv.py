@@ -28,7 +28,7 @@ class RLEnv():
     def __init__(
         self,
         position,  # 位置
-        sigma, # 背景噪声
+        sigma # 背景噪声
         # snr_db=10  # 信噪比
     ) -> None:
         # 真实位置（直角坐标）

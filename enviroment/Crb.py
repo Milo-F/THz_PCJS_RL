@@ -38,24 +38,6 @@ class Crb():
         self.crb, self.crb_diag_sqrt = self.solve_crb()
         pass
     
-    # # TODO
-    # def __init__(
-    #     self,
-    #     p_p, # 分配的功率
-    #     alpha, # 信道衰减系数
-    #     S, # 定位信号矩阵
-    #     sigma # 噪声标准差
-    #     ) -> None:
-    #     # 信道参数
-    #     self.p_p = p_p
-    #     self.alpha = alpha
-    #     # 发送信号
-    #     self.S = S
-    #     # 噪声
-    #     self.sigma = sigma
-    #     # 采样平均的crb
-    #     self.crb_avg = 0
-    #     pass
     
     # 获得时延向量
     def solve_delay_vec(self):

@@ -8,17 +8,25 @@
     @Description: ppo网络训练main函数
 '''
 
+from random import seed
+from turtle import position
 import torch
 import Arguments as Arg
 from networks.PPO import PPO
+from enviroment import Constraints as cons
 from enviroment.Test_Env import Test_Env
+from enviroment.Env import Env
 import Tools
+import numpy as np
 
 
 def main():
     # 创建文件夹
     Tools.create_folder()
-
+    # 随机种子
+    sd = 0
+    np.random.seed(sd)
+    torch.manual_seed(sd)
     # 获取超参数
     hyper_params = vars(Arg.get_args())
 
@@ -36,7 +44,13 @@ def main():
 
     #
     Tools.print_log("INIT ENVIROMENT")
-    env = Test_Env()  # 创建环境
+    ############ 测试环境 ################
+    # env = Test_Env()  # 创建环境
+    ############ 通信环境 ################
+    position = [100, 120, -10]
+    sigma = 1e-8
+    env = Env(position, sigma)
+    #####################################
 
     state_dim = env.state_dim  # 从环境获取状态维度
     action_dim = env.action_dim  # 从环境获取动作维度
@@ -115,8 +129,8 @@ def main():
                     "Epoch: {}".format(ep)
                     + "\tEpoch Reward: {:.4f}".format(ep_r/ep_len)
                     + "\tRate: {:.4f}".format(ep_rate/ep_len)
-                    + "\tPosition Power: {:.4f}".format(a[0]*6)
-                    + "\tCom Power: {:.4f}".format(a[1]*6)
+                    + "\tPosition Power: {:.4f}".format(a[0]*cons.BETA_P)
+                    + "\tCom Power: {:.4f}".format(a[1]*cons.BETA_C)
                 )
 
         # 每个epoch需要保存的信息

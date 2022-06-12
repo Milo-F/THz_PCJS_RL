@@ -14,8 +14,7 @@ import torch.nn.functional as F
 
 class PPO_ANET(nn.Module):
     def __init__(self, in_dim, out_dim, hidden_1=128, hidden_2=64) -> None:
-        super(PPO_ANET, self).__init__()
-        # self.bn = nn.BatchNorm1d(in_features)
+        super(PPO_ANET, self).__init__()     
         self.fc1 = nn.Linear(in_dim, hidden_1)
         self.fc1.weight.data.normal_(0, 0.1)
         self.fc2 = nn.Linear(hidden_1, hidden_2)
@@ -26,7 +25,8 @@ class PPO_ANET(nn.Module):
         self.f_var_2 = nn.Linear(hidden_1, out_dim)
 
     def forward(self, s):
-        x = self.fc1(s)
+        x = s/torch.mean(s)
+        x = self.fc1(x)
         x = F.leaky_relu(x)
         x = self.fc2(x)
         x = F.leaky_relu(x)
@@ -37,7 +37,7 @@ class PPO_ANET(nn.Module):
         x_mean = torch.sigmoid(x_mean)
 
         x_var = self.f_var_1(x)
-        x_var = F.leaky_relu(x_var)
+        x_var = F.softplus(x_var)
         x_var = self.f_var_2(x_var)
         x_var = F.softplus(x_var)
         return x_mean, x_var

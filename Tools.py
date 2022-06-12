@@ -13,20 +13,23 @@ import os, time
 from matplotlib import pyplot as plt
 from scipy.io import savemat
 
-'''保存作图用到的数据'''
+
 def save_fig_data(data:list, file_name:str):
+    '''保存作图用到的数据'''
     savemat("fig_datas"+os.sep+time.strftime("%m%d")+os.sep+time.strftime("%H%M")+"_{}.mat".format(file_name), mdict={file_name:data})
 
-'''打印信息'''
+
 def print_log(str: str):
+    '''打印信息'''
     s_tmp = (40-ceil(len(str)/2))
     e_tmp = s_tmp
     if (len(str) % 2):
         e_tmp = e_tmp + 1
     print("="*s_tmp + str + "="*e_tmp)
 
-'''创建今天的日志文件夹'''
+
 def create_folder():
+    '''创建今天的日志文件夹'''
     # 创建图像文件夹和日志文件夹
     if not os.path.exists("fig_datas"):
         os.makedirs("fig_datas")
@@ -38,8 +41,9 @@ def create_folder():
     if not os.path.exists("figures" + os.sep + folder_name):
         os.makedirs("figures" + os.sep + folder_name)
 
-'''画图函数'''
+
 def plot_fig(y: list, x_str: str, y_str: str, fig_name: str):
+    '''画图函数'''
     x = [x for x in range(len(y))]
     plt.plot(x, y)
     plt.xlabel(x_str)
