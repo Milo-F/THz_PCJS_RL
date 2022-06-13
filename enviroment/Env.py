@@ -64,7 +64,7 @@ class Env():
 
     def _get_snr_p(self, power):
         '''计算定位信噪比，参数：定位功率'''
-        return cfg.N*(power*abs(self.alpha)**2)/(self.sigma**2)
+        return (power*abs(self.alpha)**2)/(self.sigma**2)
         
 
     def _get_snr_c(self, p_hat, p_Delta, com_p):
@@ -110,8 +110,8 @@ class Env():
 
         # 获得该动作的奖励
         # 获得定位误差用于约束奖励
-        p_cons = (p_Delta[0]*cfg.C)+(p_Delta[1]
-                                        * self.d)+(p_Delta[2]*self.d)
+        p_cons = math.sqrt((p_Delta[0]*cfg.C)**2+(p_Delta[1]
+                                        * self.d)**2+(p_Delta[2]*self.d)**2)
         # 获得奖励
         reward = self._get_reward(p_cons, [pos_p, com_p], rate)
 

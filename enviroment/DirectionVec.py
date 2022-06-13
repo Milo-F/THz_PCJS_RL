@@ -40,7 +40,7 @@ class DirectionVec():
     def solve_a_x(self):
         a_x = []
         for i_idx in range(cfg.M_X):
-            a_x.append(cmath.exp(self.idx_x[i_idx]*self.vartheta))
+            a_x.append(1/cmath.sqrt(cfg.M_X) * cmath.exp(self.idx_x[i_idx]*self.vartheta))
         a_x = np.mat(a_x).T
         return a_x
 
@@ -48,7 +48,7 @@ class DirectionVec():
     def solve_a_z(self):
         a_z = []
         for i_idx in range(cfg.M_Z):
-            a_z.append(cmath.exp(self.idx_z[i_idx]*self.varphi))
+            a_z.append(1/cmath.sqrt(cfg.M_Z) *cmath.exp(self.idx_z[i_idx]*self.varphi))
         a_z = np.mat(a_z).T
         return a_z
 
@@ -64,7 +64,7 @@ class DirectionVec():
     def solve_a_x_div(self):
         a_x_ = []
         for i_idx in range(cfg.M_X):
-            a_x_.append(self.idx_x[i_idx]*self.vartheta_div *
+            a_x_.append(1/cmath.sqrt(cfg.M_X) * self.idx_x[i_idx]*self.vartheta_div *
                         cmath.exp(self.idx_z[i_idx]*self.vartheta))
         a_x_ = np.mat(a_x_).T
         return a_x_
@@ -73,7 +73,7 @@ class DirectionVec():
     def solve_a_x_div_phi(self):
         a_x_ = []
         for i_idx in range(cfg.M_X):
-            a_x_.append(self.idx_x[i_idx]*self.vartheta_div_phi *
+            a_x_.append(1/cmath.sqrt(cfg.M_X) * self.idx_x[i_idx]*self.vartheta_div_phi *
                         cmath.exp(self.idx_z[i_idx]*self.vartheta))
         a_x_ = np.mat(a_x_).T
         return a_x_
@@ -83,7 +83,7 @@ class DirectionVec():
     def solve_a_z_div(self):
         a_z_ = []
         for i_idx in range(cfg.M_Z):
-            a_z_.append(self.idx_z[i_idx]*self.varphi_div *
+            a_z_.append(1/cmath.sqrt(cfg.M_Z) * self.idx_z[i_idx]*self.varphi_div *
                         cmath.exp(self.idx_z[i_idx]*self.varphi))
         a_z_ = np.mat(a_z_).T
         return a_z_

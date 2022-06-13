@@ -24,7 +24,7 @@ class Crb():
         sigma # 噪声标准差
         ) -> None:
         # 估计位置
-        self.tau_hat = p_sphe_hat[0]/cfg.C
+        self.tau_hat = p_sphe_hat[0]
         self.theta_hat = p_sphe_hat[1]
         self.phi_hat = p_sphe_hat[2]
         # 信道参数

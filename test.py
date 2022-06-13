@@ -8,17 +8,31 @@
     @Description: 
 '''
 
+import math
+from multiprocessing import Event
 import torch
 import time
 import Tools
+from enviroment.DirectionVec import DirectionVec as DV
+from enviroment.Env import Env
 
+theta = math.pi/5
+phi = math.pi/3
+a = DV(theta, phi, 0).a
+b = DV(theta, phi, 0).a
+print(a.H*b)
+
+p = [0.4,0.6]
+position = [200, 320, -10]
+sigma = 1e-9
+env = Env(position, sigma)
+_, _, rate = env.step(p)
+print(rate)
 # # today = time.date.ctime()
 # tag = str(time.strftime("%m%d%H%M"))
 # print(tag)
 
-a = [0.1,0.2]
-Tools.create_folder()
-Tools.save_fig_data(a, "a")
+
 # c = 0.3,0.4
 # b = []
 # b = [a, c]
