@@ -5,11 +5,9 @@
     @Author: Milo
     @Date: 2022/06/09 16:17:45
     @Version: 1.0
-    @Description: ppo网络训练main函数
+    @Description: ppo网络训练
 '''
 
-from random import seed
-from turtle import position
 import torch
 import Arguments as Arg
 from networks.PPO import PPO
@@ -44,13 +42,13 @@ def main():
 
     #
     Tools.print_log("INIT ENVIROMENT")
-    ############ 测试环境 ################
-    # env = Test_Env()  # 创建环境
-    ############ 通信环境 ################
+    ############ 测试环境 #####################################################
+    # env = Test_Env()  # 创建测试环境验证网络收敛性
+    ############ 通信环境 #####################################################
     position = [100, 120, -10]
     sigma = 1e-8
-    env = Env(position, sigma)
-    #####################################
+    env = Env(position, sigma) # 创建通信定位一体化环境
+    ##########################################################################
 
     state_dim = env.state_dim  # 从环境获取状态维度
     action_dim = env.action_dim  # 从环境获取动作维度
@@ -68,8 +66,10 @@ def main():
     # 训练
     for ep in range(ep_num):
 
+        ##########################################################################
         # 初始化环境获得初始状态
         s = env.reset()
+        ##########################################################################
 
         buf_s, buf_a, buf_r = [], [], []
 
@@ -85,8 +85,12 @@ def main():
             tensor_a = ppo.choose_action(tensor_s)
             # 获取动作
             a = tensor_a.detach().numpy()
+            
+            ##########################################################################
             # 将动作与环境互动获得下一个状态与动作奖励
             s_, reward, rate = env.step(a)
+            ##########################################################################
+            
             # 保存状态、动作和奖励
             buf_s.append(s)
             buf_a.append(a)
