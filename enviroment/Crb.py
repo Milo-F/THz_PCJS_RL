@@ -55,7 +55,7 @@ class Crb():
         delay_div_vec = []
         delay_idx = [x for x in range(1,cfg.N+1)]
         for idx in delay_idx:
-            vartau = -1j*2*cmath.pi*(cfg.F_C + idx/(cfg.N*cfg.T_S))*self.tau_hat
+            vartau = -1j*2*cmath.pi*(cfg.F_C + idx/(cfg.N*cfg.T_S))
             delay_div_vec.append(vartau*cmath.exp(-1j*2*cmath.pi*(cfg.F_C + idx/(cfg.N*cfg.T_S))*self.tau_hat))
             # vartau = -1j*2*cmath.pi*(0 + idx/(cfg.N*cfg.T_S))*self.tau_hat
             # delay_div_vec.append(vartau*cmath.exp(-1j*2*cmath.pi*(0 + idx/(cfg.N*cfg.T_S))*self.tau_hat))
@@ -108,7 +108,7 @@ class Crb():
             [float(j_13), float(j_23), float(j_33), float(j_34), float(j_35)],
             [float(j_14), float(j_24), float(j_34), float(j_44), float(j_45)],
             [float(j_15), float(j_25), float(j_35), float(j_45), float(j_55)]]
-        C = np.mat(J).I
+        C = np.mat(J).I/cfg.G
         c_diag_sqrt = [math.sqrt(C[0,0]), math.sqrt(C[1,1]), math.sqrt(C[2,2]), math.sqrt(C[3,3]), math.sqrt(C[4,4])]
         return C, c_diag_sqrt
         

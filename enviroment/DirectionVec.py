@@ -9,7 +9,6 @@
 '''
 
 import cmath
-from select import select
 import numpy as np
 from enviroment import Config as cfg
 
@@ -17,8 +16,8 @@ from enviroment import Config as cfg
 class DirectionVec():
     def __init__(self, theta, phi, n) -> None:
         # 索引
-        self.idx_x = [x for x in range(0, cfg.M_X)]
-        self.idx_z = [x for x in range(0, cfg.M_Z)]
+        self.idx_x = [x for x in range(-int((cfg.M_X-1)/2), int((cfg.M_X-1)/2)+1)]
+        self.idx_z = [x for x in range(-int((cfg.M_Z-1)/2), int((cfg.M_Z-1)/2)+1)]
         # 指数公共部分
         self.com_part = 1j*2*cmath.pi * \
             (cfg.F_C+n/(cfg.N*cfg.T_S))*cfg.D_0/cfg.C

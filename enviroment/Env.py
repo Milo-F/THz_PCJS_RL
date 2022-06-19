@@ -26,6 +26,10 @@ class Env():
     # 状态动作维度
     state_dim = 2
     action_dim = 2
+    
+    # 
+    rate = 0
+    p_error = 0
 
     def __init__(
         self,
@@ -58,7 +62,8 @@ class Env():
         '''获得通信信道'''
         ch = []
         for n in range(1, cfg.N+1):
-            ch.append(ccnr(n, p_hat, p_Delta, com_p, self.alpha).channel)
+            # ch.append(ccnr(n, p_hat, p_Delta, com_p, self.alpha).channel)
+            ch.append(ccnr(n, p_hat, [0,0,0], com_p, self.alpha).channel)
         ch=np.mat(ch)
         return ch
 
@@ -106,14 +111,15 @@ class Env():
         # 取得估计误差
         p_Delta = c.crb_diag_sqrt[0:3]
         # 计算速率
-        rate = self._get_rate(p_hat, p_Delta, com_p)
+        self.rate = self._get_rate(p_hat, p_Delta, com_p)
 
         # 获得该动作的奖励
         # 获得定位误差用于约束奖励
         p_cons = math.sqrt((p_Delta[0]*cfg.C)**2+(p_Delta[1]
                                         * self.d)**2+(p_Delta[2]*self.d)**2)
+        self.p_error = p_cons
         # 获得奖励
-        reward = self._get_reward(p_cons, [pos_p, com_p], rate)
+        reward = self._get_reward(p_cons, [pos_p, com_p], self.rate)
 
         # 根据动作获得新的状态
         snr_p = self._get_snr_p(pos_p)
@@ -121,7 +127,7 @@ class Env():
         state_nxt = [snr_p, snr_c]
 
         # 返回新状态、动作奖励、通信速率
-        return state_nxt, reward, rate
+        return state_nxt, reward
 
     def reset(self):
         '''初始化环境'''
@@ -129,5 +135,5 @@ class Env():
         p_init = [0.5, 0.5]
         
         # 获得初始状态
-        state_init, __, __ = self.step(p_init)
+        state_init, __= self.step(p_init)
         return state_init

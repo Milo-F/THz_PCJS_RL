@@ -45,7 +45,7 @@ def main():
     ############ 测试环境 #####################################################
     # env = Test_Env()  # 创建测试环境验证网络收敛性
     ############ 通信环境 #####################################################
-    position = [200, 320, -10]
+    position = [200, 200, -200]
     sigma = 1e-9
     env = Env(position, sigma) # 创建通信定位一体化环境
     ##########################################################################
@@ -59,6 +59,7 @@ def main():
                   epsilon, actor_update_step, critic_update_step)
 
     # 用于画图的数据
+    ep_error_list = []
     ep_rate_list = []
     ep_reward_list = []
 
@@ -76,6 +77,7 @@ def main():
         # 用于计算epoch平均信息的变量
         ep_r = 0
         ep_rate = 0
+        ep_error = 0
 
         # 开始一个epoch的训练
         for step in range(ep_len):
@@ -88,7 +90,9 @@ def main():
             
             ##########################################################################
             # 将动作与环境互动获得下一个状态与动作奖励
-            s_, reward, rate = env.step(a)
+            s_, reward = env.step(a)
+            rate = env.rate
+            p_error = env.p_error
             ##########################################################################
             
             # 保存状态、动作和奖励
@@ -101,6 +105,7 @@ def main():
             # 累加每一步的奖励
             ep_r += reward
             ep_rate += rate
+            ep_error += p_error
 
             # buffer中存满一个batch的数据或者结束了就训练
             if (step+1) % batch_size == 0 or step == ep_len-1:
@@ -133,6 +138,7 @@ def main():
                     "Epoch: {}".format(ep)
                     + "\tEpoch Reward: {:.4f}".format(ep_r/ep_len)
                     + "\tRate: {:.4f}".format(ep_rate/ep_len)
+                    + "\tError: {:.4f}".format(ep_error/ep_len)
                     + "\tPosition Power: {:.4f}".format(a[0]*cons.BETA_P)
                     + "\tCom Power: {:.4f}".format(a[1]*cons.BETA_C)
                 )
@@ -140,9 +146,12 @@ def main():
         # 每个epoch需要保存的信息
         ep_rate_list.append(ep_rate/ep_len)
         ep_reward_list.append(ep_r/ep_len)
+        ep_error_list.append(ep_error/ep_len)
+        
     # 画图
     Tools.plot_fig(ep_reward_list, "epoch", "average reward", "PPO_avg_reward")
     Tools.plot_fig(ep_rate_list, "epoch", "average rate", "PPO_avg_rate")
+    Tools.plot_fig(ep_error_list, "epoch", "position error", "PPO_avg_position_error")
 
 
 if __name__ == "__main__":
