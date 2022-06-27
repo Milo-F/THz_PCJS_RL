@@ -13,9 +13,11 @@ import Arguments as Arg
 from networks.PPO import PPO
 from enviroment import Constraints as cons
 from enviroment.Test_Env import Test_Env
-from enviroment.Env import Env
+from enviroment.Env3D import Env3D
+from enviroment.env2d.Env2D import Env2D
 import Tools
 import numpy as np
+import math
 
 
 def main():
@@ -44,10 +46,15 @@ def main():
     Tools.print_log("INIT ENVIROMENT")
     ############ 测试环境 #####################################################
     # env = Test_Env()  # 创建测试环境验证网络收敛性
-    ############ 通信环境 #####################################################
-    position = [200, 200, -200]
-    sigma = 1e-9
-    env = Env(position, sigma) # 创建通信定位一体化环境
+    ############ 3D通信环境 #####################################################
+    # position = [50, 50, -10]
+    # sigma = 5e-8
+    # env = Env3D(position, sigma) # 创建通信定位一体化环境
+    ##########################################################################
+    ############ 2D通信环境 #####################################################
+    position = [100, math.pi/4]
+    sigma = 1e-8
+    env = Env2D(position, sigma) # 创建通信定位一体化环境
     ##########################################################################
 
     state_dim = env.state_dim  # 从环境获取状态维度
@@ -91,7 +98,7 @@ def main():
             ##########################################################################
             # 将动作与环境互动获得下一个状态与动作奖励
             s_, reward = env.step(a)
-            rate = env.rate
+            rate = env.rate_eff
             p_error = env.p_error
             ##########################################################################
             
@@ -107,6 +114,9 @@ def main():
             ep_rate += rate
             ep_error += p_error
 
+            # 进度
+            Tools.progress((step+1)/ep_len)
+            
             # buffer中存满一个batch的数据或者结束了就训练
             if (step+1) % batch_size == 0 or step == ep_len-1:
                 # 获得下一个状态的价值
@@ -117,12 +127,12 @@ def main():
                 buf_R = []
                 for r in buf_r[::-1]:
                     v_s_ = r + reward_decay * v_s_
-                    buf_R.insert(0, v_s_)
+                    buf_R.insert(0, v_s_.numpy()[0])
 
                 # 将一个batch的训练采样数据进行训练
-                bs = torch.tensor(buf_s, dtype=torch.float32)
-                ba = torch.tensor(buf_a, dtype=torch.float32)
-                bR = torch.tensor(buf_R, dtype=torch.float32)
+                bs = torch.tensor(np.array(buf_s), dtype=torch.float32)
+                ba = torch.tensor(np.array(buf_a), dtype=torch.float32)
+                bR = torch.tensor(np.array(buf_R), dtype=torch.float32)
 
                 # 清空batch buffer
                 buf_s.clear()
@@ -131,16 +141,16 @@ def main():
 
                 # 训练网络
                 ppo.update(bs, ba, bR)
-
+                
             # 一个EPOCH训练结束，打印相关的信息
             if step == ep_len-1:
                 print(
                     "Epoch: {}".format(ep)
-                    + "\tEpoch Reward: {:.4f}".format(ep_r/ep_len)
-                    + "\tRate: {:.4f}".format(ep_rate/ep_len)
-                    + "\tError: {:.4f}".format(ep_error/ep_len)
-                    + "\tPosition Power: {:.4f}".format(a[0]*cons.BETA_P)
-                    + "\tCom Power: {:.4f}".format(a[1]*cons.BETA_C)
+                    + "  Epoch Reward: {:.4f}".format(ep_r/ep_len)
+                    + "  Rate: {:.4f}".format(ep_rate/ep_len)
+                    + "  Error: {:.4f}".format(ep_error/ep_len)
+                    + "  Position Power: {:.4f}".format(a[0]*cons.BETA_P)
+                    + "  Com Power: {:.4f}".format(a[1]*cons.BETA_C)
                 )
 
         # 每个epoch需要保存的信息
@@ -150,7 +160,7 @@ def main():
         
     # 画图
     Tools.plot_fig(ep_reward_list, "epoch", "average reward", "PPO_avg_reward")
-    Tools.plot_fig(ep_rate_list, "epoch", "average rate", "PPO_avg_rate")
+    Tools.plot_fig(ep_rate_list, "epoch", "average rate_effiction", "PPO_avg_rate")
     Tools.plot_fig(ep_error_list, "epoch", "position error", "PPO_avg_position_error")
 
 

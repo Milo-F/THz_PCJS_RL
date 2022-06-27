@@ -54,3 +54,8 @@ def plot_fig(y: list, x_str: str, y_str: str, fig_name: str):
     plt.close()
     save_fig_data(y, fig_name)
     
+def progress(percent):
+    if percent > 1:
+        percent = 1
+    res = int(50 * percent) * "#"
+    print('\r[%-50s] %d%%' % (res, int(100 * percent)), end='\t')

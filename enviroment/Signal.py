@@ -37,7 +37,10 @@ class Signal():
         for i_idx in range(cfg.N):
             s_n.clear()
             for j_idx in range(cfg.M):
-                s_n.append((np.random.randn())/math.sqrt(cfg.M))
+                s_n.append(np.random.randn())
+            # s_np = np.array(s_n)
+            # s_np = s_n/np.linalg.norm(s_np)
             S[:, i_idx] = s_n
         S = np.mat(S)
+        # S = S/np.linalg.norm(S)
         return S
