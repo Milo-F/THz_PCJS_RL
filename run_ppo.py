@@ -146,11 +146,11 @@ def main():
             if step == ep_len-1:
                 print(
                     "Epoch: {}".format(ep)
-                    + "  Epoch Reward: {:.4f}".format(ep_r/ep_len)
-                    + "  Rate: {:.4f}".format(ep_rate/ep_len)
-                    + "  Error: {:.4f}".format(ep_error/ep_len)
-                    + "  Position Power: {:.4f}".format(a[0]*cons.BETA_P)
-                    + "  Com Power: {:.4f}".format(a[1]*cons.BETA_C)
+                    + "\tEpoch Reward: {:.4f}".format(ep_r/ep_len)
+                    + "\tRate: {:.4f}".format(ep_rate/ep_len)
+                    + "\tError: {:.4f}".format(ep_error/ep_len)
+                    + "\tPosition Power: {:.4f}".format(a[0]*cons.BETA_P)
+                    + "\tCom Power: {:.4f}".format(a[1]*cons.BETA_C)
                 )
 
         # 每个epoch需要保存的信息
@@ -159,7 +159,7 @@ def main():
         ep_error_list.append(ep_error/ep_len)
         
     # 保存配置日志
-    dg = "测试配置日志记录功能"
+    dg = "最大化速率原始成功版本"
     Tools.save_log(hyper_params, dg)
         
     # 画图
