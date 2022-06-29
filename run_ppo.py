@@ -158,9 +158,13 @@ def main():
         ep_reward_list.append(ep_r/ep_len)
         ep_error_list.append(ep_error/ep_len)
         
+    # 保存配置日志
+    dg = "测试配置日志记录功能"
+    Tools.save_log(hyper_params, dg)
+        
     # 画图
     Tools.plot_fig(ep_reward_list, "epoch", "average reward", "PPO_avg_reward")
-    Tools.plot_fig(ep_rate_list, "epoch", "average rate_effiction", "PPO_avg_rate")
+    Tools.plot_fig(ep_rate_list, "epoch", "average rate", "PPO_avg_rate")
     Tools.plot_fig(ep_error_list, "epoch", "position error", "PPO_avg_position_error")
 
 

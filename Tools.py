@@ -55,7 +55,16 @@ def plot_fig(y: list, x_str: str, y_str: str, fig_name: str):
     save_fig_data(y, fig_name)
     
 def progress(percent):
+    '''打印进度条的函数'''
     if percent > 1:
         percent = 1
-    res = int(50 * percent) * "#"
-    print('\r[%-50s] %d%%' % (res, int(100 * percent)), end='\t')
+    res = int(10 * percent) * "#"
+    print('\r[%-10s] %d%%' % (res, int(100 * percent)), end='\t')
+    
+def save_log(hyparams:dict, dg:str):
+    '''保存运行日志的函数'''
+    with open("figures"+os.sep+time.strftime("%m%d")+os.sep+"{}_配置.log".format(time.strftime("%H%M")), "w", encoding="utf-8") as f:
+        for param_key in hyparams.keys():
+            f.writelines(param_key + ": " + str(hyparams[param_key]) + "\n")
+        f.writelines("备注：" + dg)
+        f.close()

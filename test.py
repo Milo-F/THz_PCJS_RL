@@ -8,17 +8,11 @@
     @Description: 
 '''
 
-import numpy as np
-from enviroment.env2d.Signal import Signal
-from enviroment.env2d.DirectVector2D import DirectVector2D as dv2d
-from enviroment.env2d.DelayFactor import DelayFactor as DF
-from enviroment.env2d.Env2D import Env2D
-import math
-from enviroment import Config as cfg
 import Tools
-import time
 
-for i in range(100):
-    time.sleep(0.1)
-    Tools.progress(i/100)
+a = {}
+a["abs"] = 12
+a["ds"] = 1
+dg = "测试环境"
+Tools.save_log(a, dg)
 
