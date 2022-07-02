@@ -10,9 +10,6 @@
 
 import Tools
 
-a = {}
-a["abs"] = 12
-a["ds"] = 1
-dg = "测试环境"
-Tools.save_log(a, dg)
-
+func = lambda x : x%2;
+result = filter(func,[1,2,3,4,5])
+print(list(result))
