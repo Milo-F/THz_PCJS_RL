@@ -64,15 +64,15 @@ class Env2DMinCrb():
     
     def _get_reward(self, rate_eff, p_sum, p_error):
         reward = 0
-        if p_sum <= cons.P_TOTAL and p_error <= cons.RHO:
-            reward = rate_eff
+        if p_sum <= cons.P_TOTAL and rate_eff >= cons.RATE_TH:
+            reward = 1/p_error
         else:
             reward = 0
         return reward
     
     def reset(self):
-        p_p = 0.3
-        p_c = 0.3
+        p_p = 0.5
+        p_c = 0.5
         state_init, _ = self.step([p_p, p_c])
         return state_init
     

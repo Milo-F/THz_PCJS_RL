@@ -15,6 +15,7 @@ from enviroment import Constraints as cons
 from enviroment.Test_Env import Test_Env
 from enviroment.Env3D import Env3D
 from enviroment.env2d.Env2D import Env2D
+from enviroment.env2d.Env2DMinCrb import Env2DMinCrb
 import Tools
 import numpy as np
 import math
@@ -52,10 +53,15 @@ def main():
     # env = Env3D(position, sigma) # 创建通信定位一体化环境
     ##########################################################################
     ############ 2D通信环境 #####################################################
+    # position = [100, math.pi/4]
+    # sigma = 1e-8
+    # env = Env2D(position, sigma) # 创建通信定位一体化环境
+    ##########################################################################
+    ############ 2D最小化CRB环境 ##########################################
     position = [100, math.pi/4]
     sigma = 1e-8
-    env = Env2D(position, sigma) # 创建通信定位一体化环境
-    ##########################################################################
+    env = Env2DMinCrb(position, sigma) # 创建通信定位一体化环境
+    ###################################################################
 
     state_dim = env.state_dim  # 从环境获取状态维度
     action_dim = env.action_dim  # 从环境获取动作维度
@@ -93,7 +99,9 @@ def main():
             # 获取动作张量
             tensor_a = ppo.choose_action(tensor_s)
             # 获取动作
-            a = tensor_a.detach().numpy()
+            # a = tensor_a.detach().numpy()
+            # 等功率分配
+            a = [0.5,0.5]
             
             ##########################################################################
             # 将动作与环境互动获得下一个状态与动作奖励
@@ -159,7 +167,7 @@ def main():
         ep_error_list.append(ep_error/ep_len)
         
     # 保存配置日志
-    dg = "最大化速率原始成功版本"
+    dg = "等功率分配的定位误差与速率作为对比"
     Tools.save_log(hyper_params, dg)
         
     # 画图

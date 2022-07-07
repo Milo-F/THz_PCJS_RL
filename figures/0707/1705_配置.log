@@ -1,0 +1,12 @@
+train: 1
+reward_decay: 0.9
+actor_lr: 1e-05
+critic_lr: 5e-05
+episode_num: 200
+episode_len: 512
+batch_size: 64
+actor_update_step: 10
+critic_update_step: 10
+eps: 1e-08
+epsilon: 0.2
+备注：等功率分配的定位误差与速率作为对比
