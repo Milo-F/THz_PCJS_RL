@@ -8,6 +8,7 @@
     @Description: 最小化CRB的2D环境
 '''
 
+import random
 import numpy as np
 import math
 import cmath
@@ -48,6 +49,11 @@ class Env2DMinCrb():
         # 初始全向波束赋形
         self.w = np.ones([cfg.M2D,1], dtype=np.complex64)/cmath.sqrt(cfg.M2D)
         # self.w = DV2D(self.theta, 0).a
+        # 初始化估计位置
+        self.theta_hat = random.gauss(self.theta, 0.1)
+        self.tau_hat = random.gauss(self.tau, self.tau/5)
+        # self.theta_hat = self.theta
+        # self.tau_hat = self.tau
         
     def _get_snr_p(self, p_p, a):
         X = np.mat(self.x).T
@@ -65,9 +71,9 @@ class Env2DMinCrb():
     def _get_reward(self, rate_eff, p_sum, p_error):
         reward = 0
         if p_sum <= cons.P_TOTAL and rate_eff >= cons.RATE_TH:
-            reward = 1/p_error
+            reward = 30/p_error
         else:
-            reward = 0
+            reward = min(cons.P_TOTAL/p_sum, 1) + min(rate_eff/cons.RATE_TH, 1)
         return reward
     
     def reset(self):
@@ -85,11 +91,11 @@ class Env2DMinCrb():
             for j_idx in range(cfg.M2D):
                 self.x[j_idx, i_idx] = self.w[j_idx] * self.s[j_idx, i_idx]
         # 获得方向向量a
-        dv2d = DV2D(self.theta, 0)
+        dv2d = DV2D(self.theta_hat, 0)
         a = dv2d.a
         a_ = dv2d.b
         # 获得延迟因子
-        df = DF(self.tau)
+        df = DF(self.tau_hat)
         D = df.D
         D_ = df.D_
         # 计算CRB
@@ -98,8 +104,10 @@ class Env2DMinCrb():
         crb_diag = crb2d.crb_diag_sqrt
         # 获得定位信噪比
         snr_p = self._get_snr_p(p_p, a)
-        # 获得估计位置
+        # 更新估计位置
         position_hat = np.random.multivariate_normal(self.position, crb[0:2,0:2])
+        self.theta_hat = position_hat[1]
+        self.tau_hat = position_hat[0]
         # 更新波束赋形
         self.w = DV2D(position_hat[1], 0).a
         # 获得通信信噪比

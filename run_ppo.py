@@ -7,7 +7,7 @@
     @Version: 1.0
     @Description: ppo网络训练
 '''
-
+import random
 import torch
 import Arguments as Arg
 from networks.PPO import PPO
@@ -28,6 +28,7 @@ def main():
     sd = 0
     np.random.seed(sd)
     torch.manual_seed(sd)
+    random.seed(sd)
     # 获取超参数
     hyper_params = vars(Arg.get_args())
 
@@ -98,10 +99,10 @@ def main():
             tensor_s = torch.tensor(s, dtype=torch.float32)
             # 获取动作张量
             tensor_a = ppo.choose_action(tensor_s)
-            # 获取动作
-            # a = tensor_a.detach().numpy()
-            # 等功率分配
-            a = [0.5,0.5]
+            # 获取动作========================================
+            a = tensor_a.detach().numpy()
+            # 等功率分配======================================
+            # a = [1,1]
             
             ##########################################################################
             # 将动作与环境互动获得下一个状态与动作奖励
@@ -154,10 +155,10 @@ def main():
             if step == ep_len-1:
                 print(
                     "Epoch: {}".format(ep)
-                    + "\tEpoch Reward: {:.4f}".format(ep_r/ep_len)
+                    + "\tReward: {:.4f}".format(ep_r/ep_len)
                     + "\tRate: {:.4f}".format(ep_rate/ep_len)
                     + "\tError: {:.4f}".format(ep_error/ep_len)
-                    + "\tPosition Power: {:.4f}".format(a[0]*cons.BETA_P)
+                    + "\tPos Power: {:.4f}".format(a[0]*cons.BETA_P)
                     + "\tCom Power: {:.4f}".format(a[1]*cons.BETA_C)
                 )
 
@@ -167,7 +168,7 @@ def main():
         ep_error_list.append(ep_error/ep_len)
         
     # 保存配置日志
-    dg = "等功率分配的定位误差与速率作为对比"
+    dg = "独立功率限制0.9，速率门限9，同时更新估计位置"
     Tools.save_log(hyper_params, dg)
         
     # 画图
